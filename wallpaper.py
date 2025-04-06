@@ -7,9 +7,11 @@ def main():
     
 
     #Setting up all variables
-    start = date(2009, 4, 28)
+    start = date.today()
     archives = []
     sources = []
+    check = []
+    n = 0
     
 
     #Getting a list of all the archives of wallpapers
@@ -24,6 +26,18 @@ def main():
         link = contain.find("a")
         x = f"https://bingwallpaper.anerg.com{link.get("href")}"
         archives.append(x)
+        if len(archives) > 3:
+            break
+
+    #Checker function to check the start date
+    check1 = requests.get(archives[0])
+    soupcheck = BeautifulSoup(check1.content, "html.parser")
+    containercheck = soupcheck.find_all("div", class_="col-md-6 col-lg-4 col-xl-3")
+    for containcheck in containercheck:
+        linkcheck = containcheck.find("a")
+        check.append(f"https://bingwallpaper.anerg.com{linkcheck.get("href")}")
+    if len(check) != int(start.day):
+        start = start - timedelta(1)
 
 
     #Getting a list of all the images
@@ -40,16 +54,15 @@ def main():
 
     #Getting every image source
     print("Downloading all images now!")
-    total = len(sources)
     for source in sources:
         page2 = requests.get(source)
         soup2 = BeautifulSoup(page2.content, "html.parser")
         result = soup2.find("img", class_="img-fluid rounded")
         image = result["src"]
-        title = start + timedelta(total)
+        title = start - timedelta(n)
         with open(f"{title}-{source.removeprefix("https://bingwallpaper.anerg.com/detail/us/")}.jpg", "wb") as file:
             file.write(requests.get(image).content)
-        total -= 1
+        n += 1
 
 
 if __name__ == "__main__":
