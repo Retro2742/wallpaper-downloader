@@ -1,11 +1,19 @@
 import requests
 import sys
 from bs4 import BeautifulSoup
+from datetime import date, timedelta
 
 def main():
+    
+
+    #Setting up all variables
+    start = date(2009, 4, 28)
     archives = []
     sources = []
-    n = 1
+    
+
+    #Getting a list of all the archives of wallpapers
+    print("Gathering all archives!")
     URL = "https://bingwallpaper.anerg.com/"
     page = requests.get(URL)
     if page.status_code != 200:
@@ -16,6 +24,10 @@ def main():
         link = contain.find("a")
         x = f"https://bingwallpaper.anerg.com{link.get("href")}"
         archives.append(x)
+
+
+    #Getting a list of all the images
+    print("Gathering every image!")
     for archive in archives:
         page1 = requests.get(archive)
         soup1 = BeautifulSoup(page1.content, "html.parser")
@@ -24,14 +36,21 @@ def main():
             link1 = contain1.find("a")
             y = f"https://bingwallpaper.anerg.com{link1.get("href")}"
             sources.append(y)
+
+
+    #Getting every image source
+    print("Downloading all images now!")
+    total = len(sources)
     for source in sources:
         page2 = requests.get(source)
         soup2 = BeautifulSoup(page2.content, "html.parser")
         result = soup2.find("img", class_="img-fluid rounded")
         image = result["src"]
-        with open(f"wallpaper {n}.jpg", "wb") as file:
+        title = start + timedelta(total)
+        with open(f"{title}-{source.removeprefix("https://bingwallpaper.anerg.com/detail/us/")}.jpg", "wb") as file:
             file.write(requests.get(image).content)
-        n += 1
+        total -= 1
+
 
 if __name__ == "__main__":
     main()
