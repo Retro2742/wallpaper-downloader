@@ -7,7 +7,6 @@ def main():
     
 
     #Setting up all variables
-    start = date.today()
     archives = []
     sources = []
     check = []
@@ -26,18 +25,20 @@ def main():
         link = contain.find("a")
         x = f"https://bingwallpaper.anerg.com{link.get("href")}"
         archives.append(x)
-        if len(archives) > 3:
-            break
+
 
     #Checker function to check the start date
+    date1 = archives[0].removeprefix("https://bingwallpaper.anerg.com/archive/us/")
+    year = int(date1[0:4])
+    month = int(date1[4:6])
     check1 = requests.get(archives[0])
     soupcheck = BeautifulSoup(check1.content, "html.parser")
     containercheck = soupcheck.find_all("div", class_="col-md-6 col-lg-4 col-xl-3")
     for containcheck in containercheck:
         linkcheck = containcheck.find("a")
         check.append(f"https://bingwallpaper.anerg.com{linkcheck.get("href")}")
-    if len(check) != int(start.day):
-        start = start - timedelta(1)
+    day = int(len(check))
+    start = date(year, month, day)
 
 
     #Getting a list of all the images
